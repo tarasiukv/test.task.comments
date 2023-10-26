@@ -25,7 +25,6 @@
         $table->string('image_path')->nullable();
         $table->string('text_file_path')->nullable();
         $table->timestamps();
-
       });
     }
 
