@@ -11,7 +11,7 @@ class CommentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,9 @@ class CommentRequest extends FormRequest
     {
         return [
           'comment_id' => 'nullable',
-          'user_id' => 'required',
+          'email' => 'required',
+          'name' => 'required',
+          'home_page' => 'nullable',
           'text' => 'nullable',
           'image_path' => 'nullable',
           'text_file_path' => 'nullable',

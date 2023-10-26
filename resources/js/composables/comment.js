@@ -1,6 +1,5 @@
 import {ref, reactive, inject} from "vue";
 import {useRouter} from "vue-router";
-import {debounce} from "lodash";
 import axios from "axios";
 
 export default function useComments() {
@@ -79,7 +78,7 @@ export default function useComments() {
     let confirm_response = confirm("Are you sure you want to save this comment?");
     if (confirm_response) {
       try {
-        await axios.post('/api/register', data)
+        await axios.post('/api/comments', data)
 
         return true
       } catch (err) {

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
 class Comment extends Model
 {
-    use HasFactory;
+  use HasFactory, HasRecursiveRelationships;
 
   protected $fillable = [
     'user_id',
@@ -16,6 +17,14 @@ class Comment extends Model
     'image_path',
     'text_file_path',
   ];
+
+  /**
+   * @return string
+   */
+  public function getParentKeyName()
+  {
+    return 'comment_id';
+  }
 
   /**
    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

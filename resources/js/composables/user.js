@@ -1,6 +1,5 @@
 import {ref, reactive, inject} from "vue";
 import {useRouter} from "vue-router";
-import {debounce} from "lodash";
 import axios from "axios";
 
 export default function useUsers() {
@@ -79,7 +78,7 @@ export default function useUsers() {
     let confirm_response = confirm("Are you sure you want to save this user?");
     if (confirm_response) {
       try {
-        await axios.post('/api/register', data)
+        await axios.post('/api/users', data)
 
         return true
       } catch (err) {

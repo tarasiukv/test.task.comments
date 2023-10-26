@@ -6,6 +6,7 @@
   use App\Http\Requests\CommentRequest;
   use App\Http\Resources\CommentResource;
   use App\Models\Comment;
+  use App\Models\User;
   use Illuminate\Http\Request;
   use Symfony\Component\HttpFoundation\Response;
 
@@ -20,9 +21,11 @@
 
       $model = Comment::with([
         'user',
-      ]);
+        'descendantsAndSelf',
+      ])->whereNull('comment_id')
+        ->paginate($per_page);
 
-      return CommentResource::collection($model->paginate($per_page));
+      return CommentResource::collection($model);
     }
 
     /**
@@ -30,7 +33,15 @@
      */
     public function store(CommentRequest $request)
     {
-      $comment = Comment::create($request->validated());
+      $data = $request->validated();
+
+      $user = User::where('email', $data['email'])->first();
+      if (!$user) {
+        $user = User::create($data);
+      }
+      $data['user_id'] = $user->id;
+
+      $comment = Comment::create($data);
 
       return new CommentResource($comment);
     }
