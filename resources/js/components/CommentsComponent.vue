@@ -19,10 +19,6 @@ const newComment = ref({
   text: "",
 });
 
-onMounted(() => {
-  getComments();
-});
-
 const replyToComment = (comment) => {
   comment.replying = true;
   comment.reply_name = "";
@@ -65,6 +61,12 @@ const addNewComment = () => {
 const loadMoreComments = () => {
   nextPage();
 };
+
+onMounted(async () => {
+  await getComments();
+  console.log(comments.value)
+});
+
 </script>
 
 <template>
