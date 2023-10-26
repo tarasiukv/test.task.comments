@@ -14,7 +14,7 @@
 <body class="hold-transition dark-skin theme-primary sidebar-mini fixed">
 <div id="app"></div>
 
-@vite('resources/js/app_user.js')
+@vite('resources/js/app.js')
 
 </body>
 </html>
