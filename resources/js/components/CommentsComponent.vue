@@ -1,9 +1,9 @@
 <script setup>
-import {ref, onMounted} from "vue";
+import {ref, onMounted, watch} from "vue";
 import useComments from "../composables/comment.js";
 import ChildCommentComponent from "./ChildCommentComponent.vue";
 
-const { getComments, comments, storeComment } = useComments();
+const {comments, sort_option, getComments, storeComment} = useComments();
 
 const newComment = ref({
     name: "",
@@ -53,7 +53,6 @@ const addNewComment = () => {
 onMounted(async () => {
     await getComments();
 });
-
 </script>
 
 <template>
@@ -64,10 +63,24 @@ onMounted(async () => {
                     <h3>Add a New Comment</h3>
                     <form @submit.prevent="addNewComment">
                         <div>
-                            <p>Enter <input v-model="newComment.name" class="form-control"  placeholder="Your Name" required/></p>
+                            <p>Enter
+                                <input
+                                    v-model="newComment.name"
+                                    class="form-control"
+                                    placeholder="Your Name"
+                                    required
+                                />
+                            </p>
                         </div>
                         <div>
-                            <p>Enter <input v-model="newComment.email" class="form-control"  placeholder="Your Email" required/></p>
+                            <p>Enter
+                                <input
+                                    v-model="newComment.email"
+                                    class="form-control"
+                                    placeholder="Your Email"
+                                    required
+                                />
+                            </p>
                         </div>
                         <textarea
                             v-model="newComment.text"
@@ -77,7 +90,9 @@ onMounted(async () => {
                             required
                         ></textarea>
                         <div class="mar-top clearfix">
-                            <button class="btn btn-sm btn-primary pull-right" type="submit"><i class="fa fa-pencil fa-fw"></i> Share</button>
+                            <button class="btn btn-sm btn-primary pull-right" type="submit"><i
+                                class="fa fa-pencil fa-fw"></i> Share
+                            </button>
                             <a class="btn btn-trans btn-icon fa fa-camera add-tooltip" href="#"></a>
                             <a class="btn btn-trans btn-icon fa fa-file add-tooltip" href="#"></a>
                         </div>
@@ -87,39 +102,74 @@ onMounted(async () => {
                     </form>
                 </div>
             </div>
-
+            <select
+                class="sort"
+                v-model="sort_option"
+            >
+                <option value="name-asc">Name (А-Z)</option>
+                <option value="name-desc">Name (Z-А)</option>
+                <option value="email-asc">Email (А-Z)</option>
+                <option value="email-desc">Email (Z-А)</option>
+                <option value="created_at-asc">Time (А-Z)</option>
+                <option value="created_at-desc">Time (Z-А)</option>
+            </select>
             <div class="panel">
                 <div
                     class="panel-body"
-                    v-for="comment in comments" :key="comment.id"
+                    v-for="comment in comments"
+                    :key="comment.id"
                 >
                     <div class="media-block">
-                        <a class="media-left" href="#"><img class="img-circle img-sm" alt="Profile Picture" src="https://bootdey.com/img/Content/avatar/avatar1.png"></a>
+                        <a class="media-left" href="#">
+                            <img class="img-circle img-sm" alt="Profile Picture" src="https://bootdey.com/img/Content/avatar/avatar1.png">
+                        </a>
                         <div class="media-body">
                             <div class="mar-btm">
-                                <a href="#" class="btn-link text-semibold media-heading box-inline"> {{ comment.user.email }}</a>
+                                <a href="#" class="btn-link text-semibold media-heading box-inline">
+                                    {{ comment.user.email }}</a>
                                 <p class="text-muted text-sm"> {{ comment.created_at }}</p>
                             </div>
                             <p>{{ comment.text }}</p>
-<!--                            For images or files    -->
-<!--                            <img class="img-responsive thumbnail" src="" alt="Image">-->
+                            <!--                            For images or files    -->
+                            <!--                            <img class="img-responsive thumbnail" src="" alt="Image">-->
                             <div class="pad-ver">
-                                <button class="btn btn-sm btn-default btn-hover-primary" @click="replyToComment(comment)"><i class="fa fa-reply"></i> Comment</button>
-                                <button @click="toggleChildComments(comment.id)" class="btn btn-sm btn-default btn-hover-primary">
+                                <button
+                                    class="btn btn-sm btn-default btn-hover-primary"
+                                    @click="replyToComment(comment)"
+                                >
+                                    <i class="fa fa-reply"></i> Comment
+                                </button>
+                                <button
+                                    @click="toggleChildComments(comment.id)"
+                                    class="btn btn-sm btn-default btn-hover-primary"
+                                >
                                     {{ showComments[comment.id] ? 'Hide' : 'Show' }} comments
                                 </button>
                             </div>
 
                             <div v-if="comment.replying">
-                                <div><input v-model="comment.reply_name" placeholder="Your Name" /></div>
-                                <input v-model="comment.reply_email" placeholder="Your Email" />
-                                <textarea v-model="comment.reply_text" class="form-control" placeholder="Your Reply" required></textarea>
+                                <div>
+                                    <input
+                                        v-model="comment.reply_name"
+                                        placeholder="Your Name"
+                                    />
+                                </div>
+                                <input
+                                    v-model="comment.reply_email"
+                                    placeholder="Your Email"
+                                />
+                                <textarea
+                                    v-model="comment.reply_text"
+                                    class="form-control"
+                                    placeholder="Your Reply"
+                                    required
+                                ></textarea>
                                 <button @click="addReply(comment)">Add Reply</button>
                             </div>
 
                             <hr>
                             <div v-if="showComments[comment.id]">
-                                <child-comment-component :replies="comment.descendants" />
+                                <child-comment-component :replies="comment.descendants"/>
                             </div>
                         </div>
                     </div>
