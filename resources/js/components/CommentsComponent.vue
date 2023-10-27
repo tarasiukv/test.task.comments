@@ -57,56 +57,6 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="container mb-5 mt-5">
-        <div class="card">
-            <div class="row">
-                <div class="col-md-12">
-                    <h3 class="text-center mb-5">
-                        Comments
-                    </h3>
-                    <div class="row">
-                        <div
-                            class="col-md-12"
-                            v-for="comment in comments" :key="comment.id"
-                        >
-                            <div class="media">
-                                <img src="/public/image/icon.png" alt=""/>
-                                <div class="media-body">
-                                    <div class="row">
-                                        <div class="col-8 d-flex">
-                                            <h5>{{ comment.user.email }}</h5>
-                                            <span>- 2 hours ago</span>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="pull-right reply">
-                                                <button @click="replyToComment(comment)"><span><i class="fa fa-reply"></i> reply</span></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {{ comment.text }}
-                                    <div v-if="comment.replying">
-                                        <input v-model="comment.reply_name" placeholder="Your Name" />
-                                        <input v-model="comment.reply_email" placeholder="Your Email" />
-                                        <textarea v-model="comment.reply_text" placeholder="Your Reply"></textarea>
-                                        <button @click="addReply(comment)">Add Reply</button>
-                                    </div>
-                                    <button @click="toggleChildComments(comment.id)">
-                                        {{ showComments[comment.id] ? 'Hide' : 'Show' }} comments
-                                    </button>
-                                    <div v-if="showComments[comment.id]">
-                                        <child-comment-component :replies="comment.descendants" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
     <div class="container bootdey">
         <div class="col-md-12 bootstrap snippets">
             <div class="panel">
