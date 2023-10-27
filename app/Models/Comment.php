@@ -26,6 +26,11 @@ class Comment extends Model
     return 'comment_id';
   }
 
+    public function descendants()
+    {
+        return $this->hasMany(Comment::class, 'comment_id', 'id')->with('descendants');
+    }
+
   /**
    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
    */

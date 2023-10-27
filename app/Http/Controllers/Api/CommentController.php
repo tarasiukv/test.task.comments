@@ -21,7 +21,7 @@
 
       $model = Comment::with([
         'user',
-        'descendantsAndSelf',
+        'descendants',
       ])->whereNull('comment_id')
         ->paginate($per_page);
 

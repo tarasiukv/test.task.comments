@@ -24,7 +24,7 @@ class CommentResource extends JsonResource
           'user' => new UserResource($this->whenLoaded('user')),
 //          'childComments' => CommentResource::collection($this->whenLoaded('childComments')),
 //          'parentComment' => new CommentResource($this->whenLoaded('parentComment')),
-          'allChildren' => $this->whenLoaded('descendantsAndSelf'),
+          'descendants' => $this->whenLoaded('descendants'),
         ];
     }
 }
