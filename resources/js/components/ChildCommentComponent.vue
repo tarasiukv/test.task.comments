@@ -1,12 +1,36 @@
 <script setup>
-import { ref, onMounted, defineProps } from "vue";
+import { defineProps } from "vue";
 import useComments from "../composables/comment.js";
-
 
 const props = defineProps({
   replies: Array,
 })
 
+const { comments, storeComment } = useComments();
+
+const replyToComment = (comment) => {
+    comment.replying = true;
+    comment.reply_name = "";
+    comment.reply_email = "";
+    comment.reply_text = "";
+};
+
+const addReply = (comment) => {
+
+    const data = {
+        name: comment.reply_name,
+        email: comment.reply_email,
+        text: comment.reply_text,
+        comment_id: comment.id,
+    };
+    if (storeComment(data)) {
+        comment.replying = false;
+        comment.reply_name = "";
+        comment.reply_email = "";
+        comment.reply_text = "";
+    } else {
+    }
+};
 
 </script>
 
@@ -25,7 +49,7 @@ const props = defineProps({
           <textarea v-model="reply.reply_text" placeholder="Your Reply"></textarea>
           <button @click="addReply(reply)">Add Reply</button>
         </div>
-        <comment-replies :replies="reply.replies"></comment-replies>
+        <child-comment-component :replies="reply.descendants"></child-comment-component>
       </li>
     </ul>
 </template>
