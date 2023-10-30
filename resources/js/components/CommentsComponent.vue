@@ -50,8 +50,19 @@ const addNewComment = () => {
     }
 };
 
+const initEchoServerListener = async () => {
+  window.Echo.channel('comments_adding_channel')
+      .listen('NewCommentAdded', async (e) => {
+        await getComments()
+      })
+      .error((err) => {
+        console.log(err)
+      });
+}
+
 onMounted(async () => {
     await getComments();
+    await initEchoServerListener()
 });
 </script>
 

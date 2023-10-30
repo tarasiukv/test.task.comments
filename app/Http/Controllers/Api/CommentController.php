@@ -2,6 +2,7 @@
 
   namespace App\Http\Controllers\Api;
 
+  use App\Events\NewCommentAdded;
   use App\Http\Controllers\Controller;
   use App\Http\Requests\CommentRequest;
   use App\Http\Resources\CommentResource;
@@ -42,6 +43,9 @@
       $data['user_id'] = $user->id;
 
       $comment = Comment::create($data);
+      if ($comment) {
+        NewCommentAdded::dispatch();
+      }
 
       return new CommentResource($comment);
     }
