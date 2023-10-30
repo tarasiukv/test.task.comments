@@ -5,6 +5,7 @@
 
 - Test task
     * [Installation](#installation)
+    * [Run project](#run_project)
     * [Issues](#issues)
     * [Documentation](#documentation)
 # Installation
@@ -38,12 +39,30 @@
 - Run serve:
   `php artisan serve`
 
+<a name="run_project"></a>
+## Run project
+
+On the server has to be run Echo server. For run use command:
+
+    laravel-echo-server start
+
+Also there has to be run workers:
+
+    php artisan queue:work
+
+For build all front code run php artisan command
+
+    npm run build
+
+<a name="rerun_project"></a>
+
 
 # Issues
 
 1. If you have error like this `('/test.task.commets/.env'): Failed to open stream: No such file or directory`
 
 Rename `.env.example` to `.env`
+
 
 # Documentation
 EER Diagram for this app ``storage/app/public/EER_Diagram-Comments_App.mwb``
