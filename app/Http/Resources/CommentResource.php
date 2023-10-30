@@ -24,8 +24,6 @@ class CommentResource extends JsonResource
           'text_file_path' => $this->text_file_path,
           'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
           'user' => new UserResource($this->whenLoaded('user')),
-//          'childComments' => CommentResource::collection($this->whenLoaded('childComments')),
-//          'parentComment' => new CommentResource($this->whenLoaded('parentComment')),
           'descendants' => $this->whenLoaded('descendants'),
         ];
     }

@@ -50,6 +50,12 @@ const addNewComment = () => {
     }
 };
 
+const config = ref({
+  placeholderText: 'Edit Your Content Here!',
+  charCounterCount: false
+})
+
+
 const initEchoServerListener = async () => {
   window.Echo.channel('comments_adding_channel')
       .listen('NewCommentAdded', async (e) => {
@@ -93,6 +99,9 @@ onMounted(async () => {
                                 />
                             </p>
                         </div>
+                      <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
+
+
                         <textarea
                             v-model="newComment.text"
                             class="form-control"
@@ -140,7 +149,7 @@ onMounted(async () => {
                                     {{ comment.user.email }}</a>
                                 <p class="text-muted text-sm"> {{ comment.created_at }}</p>
                             </div>
-                            <p>{{ comment.text }}</p>
+                          <div v-html="comment.text"></div>
                             <!--                            For images or files    -->
                             <!--                            <img class="img-responsive thumbnail" src="" alt="Image">-->
                             <div class="pad-ver">
@@ -148,9 +157,10 @@ onMounted(async () => {
                                     class="btn btn-sm btn-default btn-hover-primary"
                                     @click="replyToComment(comment)"
                                 >
-                                    <i class="fa fa-reply"></i> Comment
+                                    <i class="fa fa-reply"></i> Add comment
                                 </button>
                                 <button
+                                    v-if="comment.descendants.length"
                                     @click="toggleChildComments(comment.id)"
                                     class="btn btn-sm btn-default btn-hover-primary"
                                 >

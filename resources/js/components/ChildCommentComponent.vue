@@ -40,10 +40,10 @@ const addReply = (comment) => {
             <a class="media-left" href="#"><img class="img-circle img-sm" alt="Profile Picture" src="https://bootdey.com/img/Content/avatar/avatar2.png"></a>
             <div class="media-body">
                 <div class="mar-btm">
-                    <a href="#" class="btn-link text-semibold media-heading box-inline">{{ reply.email }}</a>
+                    <a href="#" class="btn-link text-semibold media-heading box-inline">{{ reply.user?.email }}</a>
                     <p class="text-muted text-sm"><i class="fa fa-mobile fa-lg"></i>{{ reply.created_at }}</p>
                 </div>
-                <p>{{ reply.text }}</p>
+                <div v-html="reply.text"></div>
                 <div class="pad-ver">
                     <div class="btn-group">
                     </div>
@@ -53,7 +53,7 @@ const addReply = (comment) => {
                         <textarea v-model="reply.reply_text" placeholder="Your Reply"></textarea>
                         <button @click="addReply(reply)">Add Reply</button>
                     </div>
-                    <button class="btn btn-sm btn-default btn-hover-primary" @click="addReply(reply)">Comment</button>
+                    <button class="btn btn-sm btn-default btn-hover-primary" @click="addReply(reply)">Add comment</button>
                 </div>
                 <hr>
                 <child-comment-component :replies="reply.descendants"></child-comment-component>
