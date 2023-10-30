@@ -80,7 +80,7 @@ onMounted(async () => {
                     <h3>Add a New Comment</h3>
                     <form @submit.prevent="addNewComment">
                         <div>
-                            <p>Enter
+                            <p>Enter your name
                                 <input
                                     v-model="newComment.name"
                                     class="form-control"
@@ -90,7 +90,7 @@ onMounted(async () => {
                             </p>
                         </div>
                         <div>
-                            <p>Enter
+                            <p>Enter your email
                                 <input
                                     v-model="newComment.email"
                                     class="form-control"
@@ -99,40 +99,28 @@ onMounted(async () => {
                                 />
                             </p>
                         </div>
-                      <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
-
-
-                        <textarea
-                            v-model="newComment.text"
-                            class="form-control"
-                            rows="2"
-                            placeholder="What are you thinking?"
-                            required
-                        ></textarea>
+                        <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
                         <div class="mar-top clearfix">
-                            <button class="btn btn-sm btn-primary pull-right" type="submit"><i
-                                class="fa fa-pencil fa-fw"></i> Share
-                            </button>
-                            <a class="btn btn-trans btn-icon fa fa-camera add-tooltip" href="#"></a>
-                            <a class="btn btn-trans btn-icon fa fa-file add-tooltip" href="#"></a>
-                        </div>
-                        <div>
-                            <button type="submit">Add Comment</button>
+                            <button class="btn btn-sm btn-primary" type="submit">Add Comment</button>
+                            <div class="pull-right">
+                                <p>Sort By
+                                    <select
+                                        class="sort pull-right"
+                                        v-model="sort_option"
+                                    >
+                                        <option value="name-asc" selected>Name (А-Z)</option>
+                                        <option value="name-desc">Name (Z-А)</option>
+                                        <option value="email-asc">Email (А-Z)</option>
+                                        <option value="email-desc">Email (Z-А)</option>
+                                        <option value="created_at-asc">Time (А-Z)</option>
+                                        <option value="created_at-desc">Time (Z-А)</option>
+                                    </select>
+                                </p>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
-            <select
-                class="sort"
-                v-model="sort_option"
-            >
-                <option value="name-asc">Name (А-Z)</option>
-                <option value="name-desc">Name (Z-А)</option>
-                <option value="email-asc">Email (А-Z)</option>
-                <option value="email-desc">Email (Z-А)</option>
-                <option value="created_at-asc">Time (А-Z)</option>
-                <option value="created_at-desc">Time (Z-А)</option>
-            </select>
             <div class="panel">
                 <div
                     class="panel-body"
@@ -149,9 +137,7 @@ onMounted(async () => {
                                     {{ comment.user.email }}</a>
                                 <p class="text-muted text-sm"> {{ comment.created_at }}</p>
                             </div>
-                          <div v-html="comment.text"></div>
-                            <!--                            For images or files    -->
-                            <!--                            <img class="img-responsive thumbnail" src="" alt="Image">-->
+                            <div v-html="comment.text"></div>
                             <div class="pad-ver">
                                 <button
                                     class="btn btn-sm btn-default btn-hover-primary"
@@ -169,22 +155,26 @@ onMounted(async () => {
                             </div>
 
                             <div v-if="comment.replying">
-                                <div>
+                                <div class="form">
                                     <input
                                         v-model="comment.reply_name"
                                         placeholder="Your Name"
                                     />
                                 </div>
-                                <input
-                                    v-model="comment.reply_email"
-                                    placeholder="Your Email"
-                                />
-                                <textarea
+                                <div class="form">
+                                    <input
+                                        v-model="comment.reply_email"
+                                        placeholder="Your Email"
+                                    />
+                                </div>
+                                <div class="form">
+                                    <textarea
                                     v-model="comment.reply_text"
                                     class="form-control"
                                     placeholder="Your Reply"
                                     required
-                                ></textarea>
+                                    ></textarea>
+                                </div>
                                 <button @click="addReply(comment)">Add Reply</button>
                             </div>
 
@@ -201,4 +191,7 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.form {
+    margin-bottom: 10px;
+}
 </style>

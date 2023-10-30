@@ -6,6 +6,7 @@ body{
 .img-sm {
     width: 46px;
     height: 46px;
+    margin-right: 10px;
 }
 
 .panel {
