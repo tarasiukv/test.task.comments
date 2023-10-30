@@ -3,7 +3,7 @@ import {ref, onMounted, watch} from "vue";
 import useComments from "../composables/comment.js";
 import ChildCommentComponent from "./ChildCommentComponent.vue";
 
-const {comments, sort_option, getComments, storeComment} = useComments();
+const { comments, comment_page, comment_page_count, sort_option, getComments, storeComment, nextPage, prevPage, changePage } = useComments();
 
 const newComment = ref({
     name: "",
@@ -186,12 +186,27 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+            <div class="panel">
+                <div class="panel-footer">
+                    <div class="text-center">
+                        <ul class="pagination">
+                            <li v-if="comment_page > 1" @click="prevPage">
+                                <a href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li v-for="page in comment_page_count" :key="page" :class="{ active: page === comment_page }" @click="changePage(page)">
+                                <a href="#">{{ page }}</a>
+                            </li>
+                            <li v-if="comment_page < comment_page_count" @click="nextPage">
+                                <a href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
-
-<style scoped>
-.form {
-    margin-bottom: 10px;
-}
-</style>

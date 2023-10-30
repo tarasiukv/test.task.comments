@@ -11,6 +11,12 @@ export default function useComments() {
     const store = inject('store');
     const sort_option = ref('title-asc');
 
+
+    const changePage = async (page) => {
+        comment_page.value = page;
+        await getComments();
+    };
+
     /**
      * Next page for pagination
      */
@@ -36,7 +42,6 @@ export default function useComments() {
      */
     const getComments = async () => {
         try {
-            console.log("GetComments")
             const {data} = await axios.get('/api/comments',
                 {
                     params: {
@@ -46,7 +51,7 @@ export default function useComments() {
             )
 
             comments.value = data?.data
-            comment_page_count.value = data?.meta?.last_comment_page
+            comment_page_count.value = data?.meta?.last_page
 
             return true
         } catch (err) {
@@ -164,6 +169,7 @@ export default function useComments() {
         storeComment,
         updateComment,
         destroyComment,
+        changePage,
         nextPage,
         prevPage,
         comments,

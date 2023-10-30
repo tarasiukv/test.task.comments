@@ -100,3 +100,106 @@ body{
 .mar-top {
     margin-top: 15px;
 }
+
+.container {
+    margin-top: 20px;
+}
+
+.panel {
+    margin-bottom: 20px;
+}
+
+.panel-body {
+    padding: 20px;
+}
+
+.media-block {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.media-left {
+    margin-right: 10px;
+}
+
+.media-left img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+}
+
+.media-body {
+    flex: 1;
+}
+
+.media-heading {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.text-muted {
+    font-size: 14px;
+    color: #888;
+}
+
+.btn-link {
+    color: #337ab7;
+    text-decoration: none;
+}
+
+.mar-btm {
+    margin-bottom: 10px;
+}
+
+.btn-default {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-default:hover {
+    background-color: #e5e5e5;
+}
+
+.form {
+    margin-bottom: 10px;
+}
+
+.pagination {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.pagination li {
+    display: inline;
+    margin: 0 5px;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.pagination a:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.pagination .active a {
+    background-color: #333;
+    color: #fff;
+}
+
+.pagination .disabled a {
+    pointer-events: none;
+    background-color: #ccc;
+    color: #999;
+}
