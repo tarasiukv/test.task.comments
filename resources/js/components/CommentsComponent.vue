@@ -5,10 +5,13 @@ import ChildCommentComponent from "./ChildCommentComponent.vue";
 
 const { comments, comment_page, comment_page_count, sort_option, getComments, storeComment, nextPage, prevPage, changePage } = useComments();
 
+const fileInput = ref(null);
+
 const newComment = ref({
     name: "",
     email: "",
     text: "",
+    file: null,
 });
 const showComments = ref({});
 
@@ -39,12 +42,14 @@ const addReply = (comment) => {
     }
 };
 
-const addNewComment = () => {
+const addNewComment = async () => {
     if (newComment.value.name && newComment.value.email && newComment.value.text) {
-        if (storeComment(newComment.value)) {
+        let formData = await makeFormData();
+        if (await storeComment(formData)) {
             newComment.value.name = "";
             newComment.value.email = "";
             newComment.value.text = "";
+            newComment.value.file = null;
         } else {
         }
     }
@@ -54,6 +59,30 @@ const config = ref({
   placeholderText: 'Edit Your Content Here!',
   charCounterCount: false
 })
+
+const files = ref('');
+
+const makeFormData = async () => {
+    const formData = new FormData();
+
+    formData.append('name', newComment.value.name);
+    formData.append('email', newComment.value.email);
+    formData.append('text', newComment.value.text);
+
+
+    for (let i = 0; i < files.value.length; i++) {
+        const file = files.value[i];
+        formData.append('files[]', file, file.name);
+    }
+
+    console.log(formData)
+    return formData
+}
+
+
+const getImage = (event) => {
+    files.value = event.target.files;
+}
 
 
 const initEchoServerListener = async () => {
@@ -98,6 +127,19 @@ onMounted(async () => {
                                     required
                                 />
                             </p>
+                        </div>
+                        <div>
+                            <p>Upload a file
+                                <input
+                                    type="file"
+                                    ref="fileInput"
+                                    @change="getImage"
+                                    multiple
+                                />
+                            </p>
+                        </div>
+                        <div v-if="newComment.image">
+                            <img :src="newComment.image" alt="Uploaded Image" />
                         </div>
                         <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
                         <div class="mar-top clearfix">
