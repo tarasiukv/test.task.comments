@@ -35,10 +35,6 @@
 - Build project:
   `npm run build`
 
-
-- Run serve:
-  `php artisan serve`
-
 <a name="run_project"></a>
 ## Run project
 
