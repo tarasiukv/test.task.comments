@@ -1,4 +1,4 @@
-import {ref, reactive, inject, watch} from "vue";
+import {ref, inject, watch} from "vue";
 import {useRouter} from "vue-router";
 import axios from "axios";
 
@@ -87,9 +87,9 @@ export default function useComments() {
                 await axios.post('/api/comments', data)
 
                 return true
-            } catch (err) {
-
-                return false
+            } catch (e) {
+                window.alert("Error when saving");
+                console.log(e.response)
             }
         }
 

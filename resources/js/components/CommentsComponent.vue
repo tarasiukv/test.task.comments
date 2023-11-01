@@ -5,13 +5,10 @@ import ChildCommentComponent from "./ChildCommentComponent.vue";
 
 const { comments, comment_page, comment_page_count, sort_option, getComments, storeComment, nextPage, prevPage, changePage } = useComments();
 
-const fileInput = ref(null);
-
 const newComment = ref({
     name: "",
     email: "",
     text: "",
-    file: null,
 });
 const showComments = ref({});
 
@@ -79,10 +76,9 @@ const makeFormData = async () => {
     return formData
 }
 
-
-const getImage = (event) => {
+const getFile = (event) => {
     files.value = event.target.files;
-}
+};
 
 
 const initEchoServerListener = async () => {
@@ -107,7 +103,7 @@ onMounted(async () => {
             <div class="panel">
                 <div class="panel-body">
                     <h3>Add a New Comment</h3>
-                    <form @submit.prevent="addNewComment">
+                    <form action="/upload" method="POST" enctype="multipart/form-data">
                         <div>
                             <p>Enter your name
                                 <input
@@ -132,8 +128,8 @@ onMounted(async () => {
                             <p>Upload a file
                                 <input
                                     type="file"
-                                    ref="fileInput"
-                                    @change="getImage"
+                                    @change="getFile"
+                                    accept=".txt, image/png, image/jpeg, application/pdf"
                                     multiple
                                 />
                             </p>
@@ -143,7 +139,7 @@ onMounted(async () => {
                         </div>
                         <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
                         <div class="mar-top clearfix">
-                            <button class="btn btn-sm btn-primary" type="submit">Add Comment</button>
+                            <button class="btn btn-sm btn-primary" type="button" @click.prevent="addNewComment">Add Comment</button>
                             <div class="pull-right">
                                 <p>Sort By
                                     <select

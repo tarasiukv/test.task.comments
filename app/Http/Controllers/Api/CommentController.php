@@ -1,32 +1,39 @@
 <?php
 
-  namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api;
 
-  use App\Events\NewCommentAdded;
-  use App\Http\Controllers\Controller;
-  use App\Http\Requests\CommentRequest;
-  use App\Http\Resources\CommentResource;
-  use App\Models\Comment;
-  use App\Models\User;
-  use Illuminate\Http\Request;
-  use Symfony\Component\HttpFoundation\Response;
+use App\Events\NewCommentAdded;
 
-  class CommentController extends Controller
-  {
+use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentRequest;
+use App\Http\Resources\CommentResource;
+use App\Models\Comment;
+use App\Services\CommentFileService;
+use App\Models\CommentFile;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PharIo\Version\Exception;
+use Symfony\Component\HttpFoundation\Response;
+use Validator;
+
+class CommentController extends Controller
+{
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-      $per_page = 20;
+        $per_page = 20;
 
-      $model = Comment::with([
-        'user',
-        'descendants',
-      ])->whereNull('comment_id')
-        ->paginate($per_page);
+        $model = Comment::with([
+            'user',
+            'descendants',
+            'files'
+        ])->whereNull('comment_id')
+            ->paginate($per_page);
 
-      return CommentResource::collection($model);
+        return CommentResource::collection($model);
     }
 
     /**
@@ -34,20 +41,42 @@
      */
     public function store(CommentRequest $request)
     {
-      $data = $request->validated();
+        $data = $request->validated();
+        $files = $request->files('files');
 
-      $user = User::where('email', $data['email'])->first();
-      if (!$user) {
-        $user = User::create($data);
-      }
-      $data['user_id'] = $user->id;
+        DB::beginTransaction();
+        try {
+            $user = User::where('email', $data['email'])->first();
+            if (!$user) {
+                $user = User::create($data);
+            }
+            $data['user_id'] = $user->id;
 
-      $comment = Comment::create($data);
-      if ($comment) {
-        NewCommentAdded::dispatch();
-      }
+            $comment = Comment::create($data);
+            if (!empty($files)) {
+                $n = 0;
+                foreach ($files as $file) {
+                    if (!empty($file)) {
+                        $file_path = CommentFileService::store($file, $comment, ++$n);
+                        CommentFile::create([
+                            'file_path' => $file_path,
+                            'comment_id' => $comment->id,
+                        ]);
+                    }
+                }
+            }
+            $comment->save();
+            if ($comment) {
+                NewCommentAdded::dispatch();
+            }
 
-      return new CommentResource($comment);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Виникла помилка при збереженні коментаря.'], 500);
+        }
+
+        return new CommentResource($comment);
     }
 
     /**
@@ -55,9 +84,9 @@
      */
     public function show(Comment $comment)
     {
-      $comment->load('user');
+        $comment->load(['user', 'files']);
 
-      return new CommentResource($comment);
+        return new CommentResource($comment);
     }
 
     /**
@@ -65,7 +94,7 @@
      */
     public function update(CommentRequest $request, Comment $comment)
     {
-      $comment->update($request->validated());
+        $comment->update($request->validated());
     }
 
     /**
@@ -73,8 +102,8 @@
      */
     public function destroy(Comment $comment)
     {
-      $comment->delete();
+        $comment->delete();
 
-      return response(null, Response::HTTP_NO_CONTENT);
+        return response(null, Response::HTTP_NO_CONTENT);
     }
-  }
+}

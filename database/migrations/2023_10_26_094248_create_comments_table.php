@@ -22,8 +22,7 @@
           ->onUpdate('cascade')
           ->nullOnDelete();
         $table->text('text')->nullable();
-        $table->string('image_path')->nullable();
-        $table->string('text_file_path')->nullable();
+        $table->string('file_path')->nullable();
         $table->timestamps();
       });
     }

@@ -14,8 +14,6 @@ class Comment extends Model
     'user_id',
     'comment_id',
     'text',
-    'image_path',
-    'text_file_path',
   ];
 
   /**
@@ -55,5 +53,13 @@ class Comment extends Model
     return $this->belongsTo(User::class, 'user_id');
   }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     *
+     */
+    public function files()
+    {
+        return $this->hasMany(CommentFile::class, 'comment_id');
+    }
 
 }
