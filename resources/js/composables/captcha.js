@@ -18,16 +18,10 @@ export default function useCaptcha() {
             alert("Not Matched");
         }
     };
-    const handleRefreshCaptcha = () => {
-        if ($refs.captcha) {
-            $refs.captcha.refreshCaptcha();
-        }
-    }
 
 
     return {
         handleConfirm,
-        handleRefreshCaptcha,
         code,
         inputCode,
         shouldRefreshCaptcha,
