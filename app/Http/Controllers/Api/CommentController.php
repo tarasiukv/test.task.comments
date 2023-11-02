@@ -42,7 +42,7 @@ class CommentController extends Controller
     public function store(CommentRequest $request)
     {
         $data = $request->validated();
-        $files = $request->files('files');
+        $files = $request->file('files');
 
         DB::beginTransaction();
         try {

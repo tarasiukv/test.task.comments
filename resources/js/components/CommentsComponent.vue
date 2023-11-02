@@ -2,93 +2,62 @@
 import {ref, onMounted, watch} from "vue";
 import useComments from "../composables/comment.js";
 import ChildCommentComponent from "./ChildCommentComponent.vue";
+import CaptchaCode from "vue-captcha-code";
+import useCaptcha from "../composables/captcha.js";
+import useAddingComments from "../composables/addingComment.js";
 
-const { comments, comment_page, comment_page_count, sort_option, getComments, storeComment, nextPage, prevPage, changePage } = useComments();
+const {
+    comments,
+    comment_page,
+    comment_page_count,
+    sort_option,
+    getComments,
+    nextPage,
+    prevPage,
+    changePage
+} = useComments();
 
-const newComment = ref({
-    name: "",
-    email: "",
-    text: "",
-});
-const showComments = ref({});
+const {
+    code,
+    inputCode,
+    shouldRefreshCaptcha,
+    handleConfirm,
+    handleRefreshCaptcha,
+} = useCaptcha();
 
-const toggleChildComments = (commentId) => {
-    showComments.value[commentId] = !showComments.value[commentId];
+const {
+    config,
+    new_comment,
+    showComments,
+    replyToComment,
+    getFile,
+    addNewComment,
+    addReply,
+    toggleChildComments,
+} = useAddingComments();
+
+
+const isImage = (file_path) => {
+    const extension = file_path.split('.').pop().toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension);
 };
 
-const replyToComment = (comment) => {
-    comment.replying = true;
-    comment.reply_name = "";
-    comment.reply_email = "";
-    comment.reply_text = "";
-};
-
-const addReply = (comment) => {
-    const data = {
-        name: comment.reply_name,
-        email: comment.reply_email,
-        text: comment.reply_text,
-        comment_id: comment.id,
-    };
-    if (storeComment(data)) {
-        comment.replying = false;
-        comment.reply_name = "";
-        comment.reply_email = "";
-        comment.reply_text = "";
+const getFileName = (file_path) => {
+    if (typeof file_path === 'string') {
+        return file_path.split('/').pop();
     } else {
+        return 'Невірний формат файла';
     }
 };
-
-const addNewComment = async () => {
-    if (newComment.value.name && newComment.value.email && newComment.value.text) {
-        let formData = await makeFormData();
-        if (await storeComment(formData)) {
-            newComment.value.name = "";
-            newComment.value.email = "";
-            newComment.value.text = "";
-            newComment.value.file = null;
-        } else {
-        }
-    }
-};
-
-const config = ref({
-  placeholderText: 'Edit Your Content Here!',
-  charCounterCount: false
-})
-
-const files = ref('');
-
-const makeFormData = async () => {
-    const formData = new FormData();
-
-    formData.append('name', newComment.value.name);
-    formData.append('email', newComment.value.email);
-    formData.append('text', newComment.value.text);
-
-
-    for (let i = 0; i < files.value.length; i++) {
-        const file = files.value[i];
-        formData.append('files[]', file, file.name);
-    }
-
-    console.log(formData)
-    return formData
-}
-
-const getFile = (event) => {
-    files.value = event.target.files;
-};
-
 
 const initEchoServerListener = async () => {
-  window.Echo.channel('comments_adding_channel')
-      .listen('NewCommentAdded', async (e) => {
-        await getComments()
-      })
-      .error((err) => {
-        console.log(err)
-      });
+    window.Echo.channel('comments_adding_channel')
+        .listen('NewCommentAdded', async (e) => {
+            await getComments()
+        })
+        .error((err) => {
+            console.log(err)
+        });
 }
 
 onMounted(async () => {
@@ -107,7 +76,7 @@ onMounted(async () => {
                         <div>
                             <p>Enter your name
                                 <input
-                                    v-model="newComment.name"
+                                    v-model="new_comment.name"
                                     class="form-control"
                                     placeholder="Your Name"
                                     required
@@ -117,7 +86,7 @@ onMounted(async () => {
                         <div>
                             <p>Enter your email
                                 <input
-                                    v-model="newComment.email"
+                                    v-model="new_comment.email"
                                     class="form-control"
                                     placeholder="Your Email"
                                     required
@@ -134,12 +103,35 @@ onMounted(async () => {
                                 />
                             </p>
                         </div>
-                        <div v-if="newComment.image">
-                            <img :src="newComment.image" alt="Uploaded Image" />
+                        <div v-if="new_comment.image">
+                            <img :src="new_comment.image" alt="Uploaded Image"/>
                         </div>
-                        <froala :tag="'textarea'" :config="config" v-model:value="newComment.text">Init text</froala>
+                        <froala
+                            :tag="'textarea'"
+                            :config="config"
+                            v-model:value="new_comment.text"
+                        >
+                            Init text
+                        </froala>
                         <div class="mar-top clearfix">
-                            <button class="btn btn-sm btn-primary" type="button" @click.prevent="addNewComment">Add Comment</button>
+                            <div class="captcha">
+                                <input v-model="inputCode" placeholder="Please Input"/>
+                                <br/><br/>
+                                <captcha-code
+                                    :captcha="code"
+                                    @update:captcha="code = $event"
+                                    ref="captcha"
+                                >
+                                </captcha-code>
+                                <p>Click on the captcha to update it</p>
+                            </div>
+                            <button
+                                class="btn btn-sm btn-primary"
+                                type="button"
+                                @click.prevent="handleConfirm"
+                            >
+                                Add Comment
+                            </button>
                             <div class="pull-right">
                                 <p>Sort By
                                     <select
@@ -166,85 +158,115 @@ onMounted(async () => {
                     :key="comment.id"
                 >
                     <div class="media-block">
-                        <a class="media-left" href="#">
-                            <img class="img-circle img-sm" alt="Profile Picture" src="https://bootdey.com/img/Content/avatar/avatar1.png">
-                        </a>
                         <div class="media-body">
                             <div class="mar-btm">
+                                <a href="#">
+                                    <img class="img-circle img-sm" alt="Profile Picture" src="https://bootdey.com/img/Content/avatar/avatar1.png">
+                                </a>
                                 <a href="#" class="btn-link text-semibold media-heading box-inline">
-                                    {{ comment.user.email }}</a>
-                                <p class="text-muted text-sm"> {{ comment.created_at }}</p>
+                                    {{ comment.user.email }}
+                                </a>
+                            </div>
+                            <div class="mar-btm">
+                                <p class="text-muted text-sm">{{ comment.created_at }}</p>
+                            </div>
+                            <div v-if="comment.files">
+                                <div
+                                    v-for="file in comment.files"
+                                    :key="file"
+                                >
+                                    <a :href="'/storage/app/public/' + file.file_path" target="_blank">
+                                        <img v-if="isImage(file.file_path)" :src="'/storage/' + file.file_path" alt="Image" />
+                                        <a
+                                            v-else
+                                            :href="'/storage/' + file.file_path"
+                                            target="_blank"
+                                        >
+                                            {{ getFileName(file.file_path) }}
+                                        </a>
+                                    </a>
+                                </div>
                             </div>
                             <div v-html="comment.text"></div>
                             <div class="pad-ver">
-                                <button
-                                    class="btn btn-sm btn-default btn-hover-primary"
-                                    @click="replyToComment(comment)"
-                                >
-                                    <i class="fa fa-reply"></i> Add comment
-                                </button>
-                                <button
-                                    v-if="comment.descendants.length"
-                                    @click="toggleChildComments(comment.id)"
-                                    class="btn btn-sm btn-default btn-hover-primary"
-                                >
-                                    {{ showComments[comment.id] ? 'Hide' : 'Show' }} comments
-                                </button>
-                            </div>
-
-                            <div v-if="comment.replying">
-                                <div class="form">
-                                    <input
-                                        v-model="comment.reply_name"
-                                        placeholder="Your Name"
-                                    />
+                                <div style="display: flex; justify-content: center; align-items: center;">
+                                    <button class="btn btn-sm btn-default btn-hover-primary" @click="replyToComment(comment)">
+                                        <i class="fa fa-reply"></i> Add comment
+                                    </button>
+                                    <div style="width: 10px;"></div>
+                                    <button
+                                        class="btn btn-sm btn-default btn-hover-primary"
+                                        v-if="comment.descendants.length"
+                                        @click="toggleChildComments(comment.id)"
+                                    >
+                                        {{ showComments[comment.id] ? 'Hide' : 'Show' }} comments
+                                    </button>
                                 </div>
-                                <div class="form">
-                                    <input
-                                        v-model="comment.reply_email"
-                                        placeholder="Your Email"
-                                    />
-                                </div>
-                                <div class="form">
+                                <div v-if="comment.replying">
+                                    <div class="form">
+                                        <input
+                                            v-model="comment.reply_name"
+                                            placeholder="Your Name"
+                                        />
+                                    </div>
+                                    <div class="form">
+                                        <input
+                                            v-model="comment.reply_email"
+                                            placeholder="Your Email"
+                                        />
+                                    </div>
+                                    <div class="form">
                                     <textarea
-                                    v-model="comment.reply_text"
-                                    class="form-control"
-                                    placeholder="Your Reply"
-                                    required
+                                        v-model="comment.reply_text"
+                                        class="form-control"
+                                        placeholder="Your Reply"
+                                        required
                                     ></textarea>
+                                    </div>
+                                    <button @click="addReply(comment)">Add Reply</button>
                                 </div>
-                                <button @click="addReply(comment)">Add Reply</button>
-                            </div>
 
-                            <hr>
-                            <div v-if="showComments[comment.id]">
-                                <child-comment-component :replies="comment.descendants"/>
+                                <hr>
+                                <div v-if="showComments[comment.id]">
+                                    <child-comment-component :replies="comment.descendants"/>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="panel">
-                <div class="panel-footer">
-                    <div class="text-center">
-                        <ul class="pagination">
-                            <li v-if="comment_page > 1" @click="prevPage">
-                                <a href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            <li v-for="page in comment_page_count" :key="page" :class="{ active: page === comment_page }" @click="changePage(page)">
-                                <a href="#">{{ page }}</a>
-                            </li>
-                            <li v-if="comment_page < comment_page_count" @click="nextPage">
-                                <a href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+        </div>
+        <div class="panel">
+            <div class="panel-footer">
+                <div class="text-center">
+                    <ul class="pagination">
+                        <li v-if="comment_page > 1" @click="prevPage">
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li v-for="page in comment_page_count" :key="page" :class="{ active: page === comment_page }"
+                            @click="changePage(page)">
+                            <a href="#">{{ page }}</a>
+                        </li>
+                        <li v-if="comment_page < comment_page_count" @click="nextPage">
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.captcha {
+    font-family: "Avenir", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+    margin-top: 10px;
+}
+</style>
