@@ -1,10 +1,9 @@
 <script setup>
-import {ref, onMounted, watch} from "vue";
-import useComments from "../composables/comment.js";
-import ChildCommentComponent from "./ChildCommentComponent.vue";
+import {ref, onMounted} from "vue";
 import CaptchaCode from "vue-captcha-code";
-import useCaptcha from "../composables/captcha.js";
+import useComments from "../composables/comment.js";
 import useAddingComments from "../composables/addingComment.js";
+import ChildCommentComponent from "./ChildCommentComponent.vue";
 
 const {
     comments,
@@ -18,14 +17,6 @@ const {
 } = useComments();
 
 const {
-    code,
-    inputCode,
-    shouldRefreshCaptcha,
-    handleConfirm,
-    handleRefreshCaptcha,
-} = useCaptcha();
-
-const {
     config,
     new_comment,
     showComments,
@@ -36,6 +27,20 @@ const {
     toggleChildComments,
 } = useAddingComments();
 
+const code = ref("");
+const input_code = ref("");
+const shouldRefreshCaptcha = ref(false);
+
+const handleConfirm = async () => {
+    if (code.value === input_code.value) {
+        await addNewComment();
+        code.value = "";
+        shouldRefreshCaptcha.value = true;
+        input_code.value = "";
+    } else {
+        alert("Not Matched");
+    }
+};
 
 const isImage = (file_path) => {
     const extension = file_path.split('.').pop().toLowerCase();
@@ -46,7 +51,7 @@ const getFileName = (file_path) => {
     if (typeof file_path === 'string') {
         return file_path.split('/').pop();
     } else {
-        return 'Невірний формат файла';
+        return 'Wrong format file';
     }
 };
 
@@ -115,7 +120,7 @@ onMounted(async () => {
                         </froala>
                         <div class="mar-top clearfix">
                             <div class="captcha">
-                                <input v-model="inputCode" placeholder="Please Input"/>
+                                <input v-model="input_code" placeholder="Please Input"/>
                                 <br/><br/>
                                 <captcha-code
                                     :captcha="code"

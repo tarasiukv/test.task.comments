@@ -9,7 +9,7 @@ export default function useAddingComments() {
     });
     const showComments = ref({});
     const files = ref('');
-    const {storeComment} = useComments();
+    const { storeComment } = useComments();
 
 
     const toggleChildComments = (commentId) => {
@@ -42,7 +42,6 @@ export default function useAddingComments() {
     const addNewComment = async () => {
         if (new_comment.value.name && new_comment.value.email && new_comment.value.text) {
             let formData = await makeFormData();
-
             if (await storeComment(formData)) {
                 new_comment.value.name = "";
                 new_comment.value.email = "";
@@ -68,13 +67,11 @@ export default function useAddingComments() {
         formData.append('email', new_comment.value.email);
         formData.append('text', new_comment.value.text);
 
-
         for (let i = 0; i < files.value.length; i++) {
             const file = files.value[i];
             formData.append('files[]', file, file.name);
         }
 
-        console.log(formData)
         return formData
     }
 
